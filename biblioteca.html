@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Libros</title>
+  <link rel="stylesheet" href="css/biblioteca.css">
+</head>
+
+<body>
+  <center>
+    <div>
+      <center><h1>Gestión de Libros</h1></center>
+  
+      <center> <h2>Agregar un Nuevo Libro</h2> </center>
+      <!-- Formulario para ingresar datos -->
+      <form id="addBookForm" class="login-container">
+        <div class="input-group">
+          <label for="titulo">Título:</label>
+          <input type="text" id="titulo" required><br>
+        </div>
+        <div class="input-group">
+          <label for="autor">Autor:</label>
+          <input type="text" id="autor" required><br>
+        </div>
+        <div class="input-group">
+          <label for="fecha">Fecha:</label>
+          <input type="date" id="fecha" required><br>
+        </div>
+        <div class="input-group">
+          <label for="isbn">ISBN:</label>
+          <input type="text" id="isbn" required><br>
+        </div>
+        <button type="submit" class="btn-login">Agregar Libro</button>
+      </form>
+  
+      <center>
+        <div>
+          <h2>Libros Disponibles</h2>
+          <!-- Botón para consultar datos -->
+          <button id="fetchData">Conectar a la Base de Datos</button>
+    
+          <!-- Tabla para mostrar los datos -->
+          <table id="dataTable" border="1" class="login-container" class="dataTable">
+            <thead>
+              <tr class="table-headers">
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Fecha</th>
+                <th>ISBN</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </center>
+      
+  
+  
+    </div>
+  </center>
+  
+
+
+  <script>
+    // Agregar un nuevo libro
+    document.getElementById("addBookForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); // Evita el envío del formulario.
+      const Titulo = document.getElementById("titulo").value;
+      const Autor = document.getElementById("autor").value;
+      const Fecha = document.getElementById("fecha").value;
+      const ISBN = document.getElementById("isbn").value;
+
+      try {
+        const response = await fetch("http://localhost:3000/add-book", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Titulo, Autor, Fecha, ISBN }),
+        });
+
+        if (response.ok) {
+          alert("Libro agregado exitosamente.");
+          document.getElementById("addBookForm").reset();
+        } else {
+          alert("Error al agregar el libro.");
+        }
+      } catch (error) {
+        console.error("Error al agregar el libro:", error);
+        alert("Hubo un error al conectar con el servidor.");
+      }
+    });
+
+    // Obtener datos
+    document.getElementById("fetchData").addEventListener("click", async () => {
+      try {
+        const response = await fetch("http://localhost:3000/get-data");
+        const data = await response.json();
+        const tableBody = document.querySelector("#dataTable tbody");
+        tableBody.innerHTML = "";
+        data.forEach(item => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.Titulo}</td>
+            <td>${item.Autor}</td>
+            <td>${new Date(item.Fecha).toLocaleDateString()}</td>
+            <td>${item.ISBN}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
+        alert("Hubo un error al conectar con el servidor.");
+      }
+    });
+  </script>
+</body>
+
+</html>
